@@ -1,0 +1,114 @@
+{
+  "name": "Generador Schema EasyPanel n8n queue",
+  "nodes": [
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Formulario n8n con iframe</title>\n  <style>\n    body {\n      font-family: Arial, sans-serif;\n      background: #f4f4f9;\n      display: flex;\n      flex-direction: column;\n      align-items: center;\n      padding: 2rem;\n    }\n    .card {\n      background: #fff;\n      padding: 2rem;\n      border-radius: 12px;\n      box-shadow: 0 4px 12px rgba(0,0,0,0.1);\n      width: 350px;\n      margin-bottom: 1.5rem;\n    }\n    h2 {\n      margin-bottom: 1rem;\n      text-align: center;\n      color: #333;\n    }\n    label {\n      display: block;\n      margin-top: 1rem;\n      font-weight: bold;\n      color: #555;\n    }\n    input {\n      width: 100%;\n      padding: 0.5rem;\n      margin-top: 0.3rem;\n      border: 1px solid #ccc;\n      border-radius: 6px;\n    }\n    button {\n      margin-top: 1.5rem;\n      width: 100%;\n      padding: 0.7rem;\n      background: #4CAF50;\n      color: white;\n      border: none;\n      border-radius: 6px;\n      font-size: 1rem;\n      cursor: pointer;\n    }\n    button:hover {\n      background: #45a049;\n    }\n    iframe {\n      width: 100%;\n      max-width: 700px;\n      height: 500px;\n      border: 1px solid #ccc;\n      border-radius: 8px;\n      background: #1e1e1e;\n    }\n    .hidden {\n      display: none;\n    }\n  </style>\n</head>\n<body>\n  <div class=\"card\" id=\"formCard\">\n    <h2>Creador de Schemas</h2>\n    <p style=\"font-size:14px; color:#666; text-align:center;\">\n      Creador del Project Schema utilizado en easypanel para crear la configuración personalizada de n8n en modo cola.<br>\n      Para generar las claves utiliza 256 wep: <a href=\"https://acte.ltd/utils/randomkeygen\" target=\"_blank\">Random Keygen</a>\n    <br>\n    El projecto en easypanel se debe nombrar 'n8n' para que funcione. \n    </p>\n    <form action=\"{{$execution.resumeUrl}}\" method=\"POST\" target=\"resultFrame\" onsubmit=\"handleSubmit(event)\">\n\n      <label for=\"clave_pg\">Clave de PostgreSQL</label>\n      <input type=\"text\" id=\"clave_pg\" name=\"clave_pg\" placeholder=\"BD21A179A6B4C155C48E62FCC6ECC\" >\n\n      <label for=\"clave_redis\">Clave de Redis</label>\n      <input type=\"text\" id=\"clave_redis\" name=\"clave_redis\" placeholder=\"BD21A179A6B4C155C48E62FCC6ECC\" >\n\n      <label for=\"clave_cifrado\">Clave de Cifrado de Credenciales</label>\n      <input type=\"text\" id=\"clave_cifrado\" name=\"clave_cifrado\" placeholder=\"BD21A179A6B4C155C48E62FCC6ECC\" >\n\n      <button type=\"submit\">Enviar</button>\n    </form>\n  </div>\n\n  <div class=\"card hidden\" id=\"reloadCard\">\n    <button onclick=\"location.reload()\">Recargar página</button>\n  </div>\n\n  <iframe name=\"resultFrame\"></iframe>\n\n  <script>\n    function handleSubmit(e) {\n      // permite enviar el form\n      setTimeout(() => {\n        document.getElementById(\"formCard\").classList.add(\"hidden\");\n        document.getElementById(\"reloadCard\").classList.remove(\"hidden\");\n      }, 500); // pequeño delay para asegurar envío\n    }\n  </script>\n</body>\n</html>\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        16,
+        224
+      ],
+      "id": "a9a09785-63fc-4d11-9756-8b4097925af5",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "resume": "webhook",
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        224
+      ],
+      "id": "e3507cb3-211a-4304-a97e-7f8edfb67a9f",
+      "name": "Wait",
+      "webhookId": "a0b69156-6928-4deb-877f-0ed972662942"
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Resultado</title>\n  <style>\n    body {\n      margin: 0;\n      padding: 1rem;\n      background: #1e1e1e;\n      color: #ffffff;\n      font-family: monospace;\n      white-space: pre-wrap; /* respeta saltos de línea */\n      word-wrap: break-word;\n    }\n  </style>\n</head>\n<body>\n{\n  \"services\": [\n    {\n      \"type\": \"app\",\n      \"data\": {\n        \"projectName\": \"n8n\",\n        \"serviceName\": \"n8n-editor\",\n        \"source\": {\n          \"type\": \"image\",\n          \"image\": \"n8nio/n8n:latest\"\n        },\n        \"env\": \"##Generacion Claves##\\r\\n\\r\\n#https://acte.ltd/utils/randomkeygen\\r\\n\\r\\n##Configuracion Datos Binarios##\\r\\n\\r\\n#guarda binary data en RAM\\r\\nN8N_DEFAULT_BINARY_DATA_MODE=default \\r\\n\\r\\n##Configuracion DB postgres##\\r\\n\\r\\nDB_TYPE=postgresdb\\r\\nDB_POSTGRESDB_DATABASE=n8n\\r\\nDB_POSTGRESDB_HOST=n8n_postgres\\r\\nDB_POSTGRESDB_PORT=5432\\r\\nDB_POSTGRESDB_USER=postgres\\r\\nDB_POSTGRESDB_PASSWORD={{ $json.body.clave_pg }}\\r\\nDB_POSTGRESDB_POOL_SIZE=2\\r\\nDB_POSTGRESDB_SCHEMA=public\\r\\n\\r\\n##Configuracion de Redis##\\r\\n\\r\\nQUEUE_BULL_REDIS_DB=0\\r\\nQUEUE_BULL_REDIS_HOST=n8n_redis\\r\\nQUEUE_BULL_REDIS_PORT=6379\\r\\nQUEUE_BULL_REDIS_PASSWORD={{ $json.body.clave_redis }}\\r\\n\\r\\n##Configuracion del editor##\\r\\n\\r\\nN8N_HOST=https://editor.$(EASYPANEL_DOMAIN)/\\r\\nWEBHOOK_URL=https://webhook.$(EASYPANEL_DOMAIN)/\\r\\nN8N_DISABLE_PRODUCTION_MAIN_PROCESS=true\\r\\nOFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true\\r\\n\\r\\n##Configuracion de las instancias de n8n generales##\\r\\n\\r\\nN8N_EDITOR_BASE_URL=https://editor.$(EASYPANEL_DOMAIN)/\\r\\nN8N_ENCRYPTION_KEY={{ $json.body.clave_cifrado }}\\r\\n#Cambiar por cada instancia de n8n\\r\\nN8N_PORT=5678 \\r\\n\\r\\n##Configuracion de Diagnostico##\\r\\n\\r\\n#Deshabilita la Ask AI en Code node.\\r\\nN8N_DIAGNOSTICS_ENABLED=false \\r\\n\\r\\n##Configuracion de metricas##\\r\\n\\r\\nN8N_METRICS=false\\r\\n\\r\\n##Configuracion de Webhooks##\\r\\n\\r\\nN8N_ENDPOINT_WEBHOOK=webhook-prod\\r\\nN8N_ENDPOINT_WEBHOOK_TEST=webhook-test\\r\\nN8N_ENDPOINT_WEBHOOK_WAIT=webhook-wait\\r\\n\\r\\n##Configuracion del modo de ejecucion##\\r\\n\\r\\nEXECUTIONS_MODE=queue\\r\\n#segundos en los que se detienen los workflows\\r\\nEXECUTIONS_TIMEOUT=3600 \\r\\n# valor maximo de segundos de ejecucion de workflows\\r\\nEXECUTIONS_TIMEOUT_MAX=3600 \\r\\n#eliminar ejecuciones antiguas\\r\\nEXECUTIONS_DATA_PRUNE=true \\r\\n#horas en las que las ejecuciones se almacenan (14 dias)\\r\\nEXECUTIONS_DATA_MAX_AGE=336 \\r\\n# maximo de ejecuciones que se almacenan\\r\\nEXECUTIONS_DATA_PRUNE_MAX_COUNT=10000 \\r\\n\\r\\n##Configuracion de logs##\\r\\n\\r\\nN8N_LOG_LEVEL=debug\\r\\nN8N_LOG_OUTPUT=console\\r\\nN8N_LOG_FORMAT=text \\r\\n\\r\\n##Configuracion de nodos##\\r\\n\\r\\nN8N_COMMUNITY_PACKAGES_ENABLED=true\\r\\nN8N_UNVERIFIED_PACKAGES_ENABLED=true\\r\\nN8N_VERIFIED_PACKAGES_ENABLED=true\\r\\n#Permite importar modulos de n8n en el code node\\r\\nNODE_FUNCTION_ALLOW_EXTERNAL=* \\r\\n# Forma de excluir nodos que se pueden usar o incluir solo los que se pueden usar\\r\\n#NODES_EXCLUDE=(sin valor por defecto) \\r\\n#NODES_INCLUDE=(sin valor por defecto)\\r\\n\\r\\n##Configuracion de seguridad##\\r\\n\\r\\nN8N_BLOCK_FILE_ACCESS_TO_N8N_FILES=true\\r\\nN8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true\\r\\nN8N_SECURITY_AUDIT_DAYS_ABANDONED_WORKFLOW=90\\r\\n\\r\\n##Configuracion de Runners (Codigo)##\\r\\n\\r\\nN8N_RUNNERS_ENABLED=true\\r\\n\\r\\n##Configuracion de Zona##\\r\\n\\r\\nGENERIC_TIMEZONE=America/Bogota\\r\\NODE_ENV=production\",\n        \"deploy\": {\n          \"replicas\": 1,\n          \"command\": \"n8n start\",\n          \"zeroDowntime\": true\n        },\n        \"domains\": [\n          {\n            \"host\": \"$(EASYPANEL_DOMAIN)\",\n            \"https\": true,\n            \"port\": 5678,\n            \"path\": \"/\",\n            \"middlewares\": [],\n            \"certificateResolver\": \"\",\n            \"wildcard\": false,\n            \"internalProtocol\": \"http\"\n          }\n        ],\n        \"mounts\": [\n          {\n            \"type\": \"volume\",\n            \"name\": \"data-queue\",\n            \"mountPath\": \"/home/node/.n8n\"\n          }\n        ]\n      }\n    },\n    {\n      \"type\": \"app\",\n      \"data\": {\n        \"projectName\": \"n8n\",\n        \"serviceName\": \"n8n-webhook\",\n        \"source\": {\n          \"type\": \"image\",\n          \"image\": \"n8nio/n8n:latest\"\n        },\n        \"env\": \"##Generacion Claves##\\r\\n\\r\\n#https://acte.ltd/utils/randomkeygen\\r\\n\\r\\n##Configuracion Datos Binarios##\\r\\n\\r\\n#guarda binary data en RAM\\r\\nN8N_DEFAULT_BINARY_DATA_MODE=default \\r\\n\\r\\n##Configuracion DB postgres##\\r\\n\\r\\nDB_TYPE=postgresdb\\r\\nDB_POSTGRESDB_DATABASE=n8n\\r\\nDB_POSTGRESDB_HOST=n8n_postgres\\r\\nDB_POSTGRESDB_PORT=5432\\r\\nDB_POSTGRESDB_USER=postgres\\r\\nDB_POSTGRESDB_PASSWORD={{ $json.body.clave_pg }}\\r\\nDB_POSTGRESDB_POOL_SIZE=2\\r\\nDB_POSTGRESDB_SCHEMA=public\\r\\n\\r\\n##Configuracion de Redis##\\r\\n\\r\\nQUEUE_BULL_REDIS_DB=0\\r\\nQUEUE_BULL_REDIS_HOST=n8n_redis\\r\\nQUEUE_BULL_REDIS_PORT=6379\\r\\nQUEUE_BULL_REDIS_PASSWORD={{ $json.body.clave_redis }}\\r\\n\\r\\n##Configuracion webhook##\\r\\nOFFLOAD_MANUAL_EXECUTIONS_TO_WORKERS=true\\r\\nN8N_DISABLE_UI=true\\r\\n\\r\\n##Configuracion de las instancias de n8n generales##\\r\\n\\r\\nN8N_EDITOR_BASE_URL=https://editor.$(EASYPANEL_DOMAIN)/\\r\\nN8N_ENCRYPTION_KEY={{ $json.body.clave_cifrado }}\\r\\n#Cambiar por cada instancia de n8n\\r\\nN8N_PORT=5679 \\r\\n\\r\\n##Configuracion de Diagnostico##\\r\\n\\r\\n#Deshabilita la Ask AI en Code node.\\r\\nN8N_DIAGNOSTICS_ENABLED=false \\r\\n\\r\\n##Configuracion de metricas##\\r\\n\\r\\nN8N_METRICS=false\\r\\n\\r\\n##Configuracion de Webhooks##\\r\\n\\r\\nN8N_ENDPOINT_WEBHOOK=webhook-prod\\r\\nN8N_ENDPOINT_WEBHOOK_TEST=webhook-test\\r\\nN8N_ENDPOINT_WEBHOOK_WAIT=webhook-wait\\r\\n\\r\\n##Configuracion del modo de ejecucion##\\r\\n\\r\\nEXECUTIONS_MODE=queue\\r\\n#segundos en los que se detienen los workflows\\r\\nEXECUTIONS_TIMEOUT=3600 \\r\\n# valor maximo de segundos de ejecucion de workflows\\r\\nEXECUTIONS_TIMEOUT_MAX=3600 \\r\\n#eliminar ejecuciones antiguas\\r\\nEXECUTIONS_DATA_PRUNE=true \\r\\n#horas en las que las ejecuciones se almacenan (14 dias)\\r\\nEXECUTIONS_DATA_MAX_AGE=336 \\r\\n# maximo de ejecuciones que se almacenan\\r\\nEXECUTIONS_DATA_PRUNE_MAX_COUNT=10000 \\r\\n\\r\\n##Configuracion de logs##\\r\\n\\r\\nN8N_LOG_LEVEL=debug\\r\\nN8N_LOG_OUTPUT=console\\r\\nN8N_LOG_FORMAT=text \\r\\n\\r\\n##Configuracion de nodos##\\r\\n\\r\\nN8N_COMMUNITY_PACKAGES_ENABLED=true\\r\\nN8N_UNVERIFIED_PACKAGES_ENABLED=true\\r\\nN8N_VERIFIED_PACKAGES_ENABLED=true\\r\\n#Permite importar modulos de n8n en el code node\\r\\nNODE_FUNCTION_ALLOW_EXTERNAL=* \\r\\n# Forma de excluir nodos que se pueden usar o incluir solo los que se pueden usar\\r\\n#NODES_EXCLUDE=(sin valor por defecto) \\r\\n#NODES_INCLUDE=(sin valor por defecto)\\r\\n\\r\\n##Configuracion de seguridad##\\r\\n\\r\\nN8N_BLOCK_FILE_ACCESS_TO_N8N_FILES=true\\r\\nN8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true\\r\\nN8N_SECURITY_AUDIT_DAYS_ABANDONED_WORKFLOW=90\\r\\n\\r\\n##Configuracion de Runners (Codigo)##\\r\\n\\r\\nN8N_RUNNERS_ENABLED=true\\r\\n\\r\\n##Configuracion de Zona##\\r\\n\\r\\nGENERIC_TIMEZONE=America/Bogota\\r\\NODE_ENV=production\",\n        \"deploy\": {\n          \"replicas\": 1,\n          \"command\": \"n8n webhook\",\n          \"zeroDowntime\": true\n        },\n        \"domains\": [\n          {\n            \"host\": \"$(EASYPANEL_DOMAIN)\",\n            \"https\": true,\n            \"port\": 5679,\n            \"path\": \"/\",\n            \"middlewares\": [],\n            \"certificateResolver\": \"\",\n            \"wildcard\": false,\n            \"internalProtocol\": \"http\"\n          }\n        ],\n        \"mounts\": [\n          {\n            \"type\": \"volume\",\n            \"name\": \"data-queue\",\n            \"mountPath\": \"/home/node/.n8n\"\n          }\n        ]\n      }\n    },\n    {\n      \"type\": \"app\",\n      \"data\": {\n        \"projectName\": \"n8n\",\n        \"serviceName\": \"n8n-worker-1\",\n        \"source\": {\n          \"type\": \"image\",\n          \"image\": \"n8nio/n8n:latest\"\n        },\n        \"env\": \"##Generacion Claves##\\r\\n\\r\\n#https://acte.ltd/utils/randomkeygen\\r\\n\\r\\n##Configuracion Datos Binarios##\\r\\n\\r\\n#guarda binary data en RAM\\r\\nN8N_DEFAULT_BINARY_DATA_MODE=default \\r\\n\\r\\n##Configuracion DB postgres##\\r\\n\\r\\nDB_TYPE=postgresdb\\r\\nDB_POSTGRESDB_DATABASE=n8n\\r\\nDB_POSTGRESDB_HOST=n8n_postgres\\r\\nDB_POSTGRESDB_PORT=5432\\r\\nDB_POSTGRESDB_USER=postgres\\r\\nDB_POSTGRESDB_PASSWORD={{ $json.body.clave_pg }}\\r\\nDB_POSTGRESDB_POOL_SIZE=2\\r\\nDB_POSTGRESDB_SCHEMA=public\\r\\n\\r\\n##Configuracion de Redis##\\r\\n\\r\\nQUEUE_BULL_REDIS_DB=0\\r\\nQUEUE_BULL_REDIS_HOST=n8n_redis\\r\\nQUEUE_BULL_REDIS_PORT=6379\\r\\nQUEUE_BULL_REDIS_PASSWORD={{ $json.body.clave_redis }}\\r\\n\\r\\n##Configuracion de los workers##\\r\\n\\r\\n#Concurrencia de ejecuciones de workflows\\r\\nN8N_CONCURRENCY_PRODUCTION_LIMIT=10\\r\\nN8N_DISABLE_UI=true\\r\\n\\r\\n##Configuracion de las instancias de n8n generales##\\r\\n\\r\\nN8N_EDITOR_BASE_URL=https://editor.$(EASYPANEL_DOMAIN)/\\r\\nN8N_ENCRYPTION_KEY={{ $json.body.clave_cifrado }}\\r\\n#Cambiar por cada instancia de n8n\\r\\nN8N_PORT=5680 \\r\\n\\r\\n##Configuracion de Diagnostico##\\r\\n\\r\\n#Deshabilita la Ask AI en Code node.\\r\\nN8N_DIAGNOSTICS_ENABLED=false \\r\\n\\r\\n##Configuracion de metricas##\\r\\n\\r\\nN8N_METRICS=false\\r\\n\\r\\n##Configuracion de Webhooks##\\r\\n\\r\\nN8N_ENDPOINT_WEBHOOK=webhook-prod\\r\\nN8N_ENDPOINT_WEBHOOK_TEST=webhook-test\\r\\nN8N_ENDPOINT_WEBHOOK_WAIT=webhook-wait\\r\\n\\r\\n##Configuracion del modo de ejecucion##\\r\\n\\r\\nEXECUTIONS_MODE=queue\\r\\n#segundos en los que se detienen los workflows\\r\\nEXECUTIONS_TIMEOUT=3600 \\r\\n# valor maximo de segundos de ejecucion de workflows\\r\\nEXECUTIONS_TIMEOUT_MAX=3600 \\r\\n#eliminar ejecuciones antiguas\\r\\nEXECUTIONS_DATA_PRUNE=true \\r\\n#horas en las que las ejecuciones se almacenan (14 dias)\\r\\nEXECUTIONS_DATA_MAX_AGE=336 \\r\\n# maximo de ejecuciones que se almacenan\\r\\nEXECUTIONS_DATA_PRUNE_MAX_COUNT=10000 \\r\\n\\r\\n##Configuracion de logs##\\r\\n\\r\\nN8N_LOG_LEVEL=debug\\r\\nN8N_LOG_OUTPUT=console\\r\\nN8N_LOG_FORMAT=text \\r\\n\\r\\n##Configuracion de nodos##\\r\\n\\r\\nN8N_COMMUNITY_PACKAGES_ENABLED=true\\r\\nN8N_UNVERIFIED_PACKAGES_ENABLED=true\\r\\nN8N_VERIFIED_PACKAGES_ENABLED=true\\r\\n#Permite importar modulos de n8n en el code node\\r\\nNODE_FUNCTION_ALLOW_EXTERNAL=* \\r\\n# Forma de excluir nodos que se pueden usar o incluir solo los que se pueden usar\\r\\n#NODES_EXCLUDE=(sin valor por defecto) \\r\\n#NODES_INCLUDE=(sin valor por defecto)\\r\\n\\r\\n##Configuracion de seguridad##\\r\\n\\r\\nN8N_BLOCK_FILE_ACCESS_TO_N8N_FILES=true\\r\\nN8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true\\r\\nN8N_SECURITY_AUDIT_DAYS_ABANDONED_WORKFLOW=90\\r\\n\\r\\n##Configuracion de Runners (Codigo)##\\r\\n\\r\\nN8N_RUNNERS_ENABLED=true\\r\\n\\r\\n##Configuracion de Zona##\\r\\n\\r\\nGENERIC_TIMEZONE=America/Bogota\\r\\NODE_ENV=production\",\n        \"deploy\": {\n          \"replicas\": 1,\n          \"command\": \"n8n worker\",\n          \"zeroDowntime\": true\n        },\n        \"mounts\": [\n          {\n            \"type\": \"volume\",\n            \"name\": \"data-queue\",\n            \"mountPath\": \"/home/node/.n8n\"\n          }\n        ]\n      }\n    },\n    {\n      \"type\": \"postgres\",\n      \"data\": {\n        \"projectName\": \"n8n\",\n        \"serviceName\": \"postgres\",\n        \"image\": \"postgres:17\",\n        \"password\": \"{{ $json.body.clave_pg }}\"\n      }\n    },\n    {\n      \"type\": \"redis\",\n      \"data\": {\n        \"projectName\": \"n8n\",\n        \"serviceName\": \"redis\",\n        \"image\": \"redis:7\",\n        \"password\": \"{{ $json.body.clave_redis }}\"\n      }\n    }\n  ]\n}\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        464,
+        224
+      ],
+      "id": "d8b96a17-a65e-40ee-913b-ba5bd2457016",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "path": "schema",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -208,
+        224
+      ],
+      "id": "790b33b4-6607-4c59-b308-eff9bd73f0b1",
+      "name": "Webhook",
+      "webhookId": "8bf27c8d-0ae4-456f-8ce2-c5b8d613eb1c"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Respond to Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f08ebd24-c0da-4523-aaa3-cc1cfd352e6f",
+  "meta": {
+    "instanceId": "1628a3d4192c6fb2d77d612f67be2fda58ab54aa0bf6e4072b88565ae2046d8c"
+  },
+  "id": "fcRTgmoImP8eqq2C",
+  "tags": []
+}
